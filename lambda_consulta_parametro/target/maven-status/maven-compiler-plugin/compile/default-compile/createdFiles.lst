@@ -1,0 +1,3 @@
+br\com\eoxygen\dto\ParametroDTO.class
+br\com\eoxygen\service\ParametroService.class
+br\com\eoxygen\lambda\FunctionLambda.class

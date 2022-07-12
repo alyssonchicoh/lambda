@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="lambda_cadastro_permissao" />
+        <module name="lambda_consulta_parametro" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="lambda_adicionar_permissao_no_grupo" target="11" />
+      <module name="lambda_cadastro_alarme" target="11" />
+      <module name="lambda_cadastro_cliente" target="11" />
+      <module name="lambda_cadastro_grupo_permissao" target="11" />
+      <module name="lambda_cadastro_parametro" target="11" />
+      <module name="lambda_consulta_hospital" target="11" />
+      <module name="lambda_consulta_usina" target="11" />
+      <module name="lambda_remover_permissao_no_grupo" target="11" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
