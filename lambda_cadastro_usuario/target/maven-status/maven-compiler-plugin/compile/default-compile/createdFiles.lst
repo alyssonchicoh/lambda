@@ -1,0 +1,5 @@
+br\com\eoxygen\exception\CPFJaExistenteException.class
+br\com\eoxygen\dto\UsuarioDTO.class
+br\com\eoxygen\exception\CampoObrigatorioException.class
+br\com\eoxygen\service\UsuarioService.class
+br\com\eoxygen\lambda\FunctionLambda.class
