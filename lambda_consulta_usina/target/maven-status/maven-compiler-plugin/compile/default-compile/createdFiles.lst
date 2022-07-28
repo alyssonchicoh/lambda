@@ -1,0 +1,7 @@
+br\com\eoxygen\dto\HospitalDTO.class
+br\com\eoxygen\dto\ClienteDTO.class
+br\com\eoxygen\service\UsinaService.class
+br\com\eoxygen\dto\UsinaSinaiDTO.class
+br\com\eoxygen\dto\UsinaDTO.class
+br\com\eoxygen\dto\DTO.class
+br\com\eoxygen\lambda\FunctionLambda.class
