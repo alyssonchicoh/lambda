@@ -1,4 +1,5 @@
 package br.com.eoxygen.service;
+
 import br.com.eoxygen.dto.AlocacaoRetornoDTO;
 import br.com.eoxygen.dto.AlocacaoUsinaDTO;
 import br.com.eoxygen.model.UsinaSinai;
@@ -7,6 +8,7 @@ import br.com.eoxygen.util.InsertSQLUtil;
 import br.com.eoxygen.util.NomeTabelaUtil;
 import br.com.eoxygen.util.SQLUtil;
 import br.com.eoxygen.util.SelectSQLUtil;
+import br.com.eoxygen.validador.Validador;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +23,32 @@ public class UsinaService {
     public final GenericRepository repository = new GenericRepository();
     private Long idCliente;
 
+
+    public static void main(String[] args) throws Exception{
+        AlocacaoUsinaDTO dto = new AlocacaoUsinaDTO();
+       // dto.setCnpjClienteAntigo("2");
+        dto.setCnpjClienteNovo("1");
+        dto.setIdUsinaBaseSinai("75");
+        dto.setIdHospitalBaseCliente("1");
+        dto.setNovoNomeTabelaLeituraDynamon("dynamo");
+        dto.setNovoNomeTopicoIoT("iot_");
+        dto.setNovoNomeTopicoFirebase("firebase");
+        dto.setNomeResponsavel("alysson");
+        dto.setContatoResponsavel("alysson");
+
+        UsinaService service = new UsinaService();
+
+        AlocacaoRetornoDTO retorno =  service.alocar(dto);
+        System.out.println(retorno.getIdAlocacao());
+        System.out.println(retorno.getIdUsinaBaseClienteNovo());
+        System.out.println(retorno.getIdUsinaBaseSinai());
+
+    }
+
     public AlocacaoRetornoDTO alocar(AlocacaoUsinaDTO dto) throws Exception{
-       String schemaClienteAntigo = "cliente_"+dto.getCnpjClienteAntigo();
+        Validador.camposObrigatoriosPreenchidos(dto);
+
+        String schemaClienteAntigo = "cliente_"+dto.getCnpjClienteAntigo();
        UsinaSinai usina = this.consultarUsinaBaseSinai(dto.getIdUsinaBaseSinai());
 
        if(!dto.getCnpjClienteAntigo().equals("")){
@@ -32,15 +58,49 @@ public class UsinaService {
        this.atualizarClienteUsinaBaseSinai(dto.getIdUsinaBaseSinai(),dto.getCnpjClienteNovo());
 
        this.inserirAlocacaoUsinaCliente(usina.getId().toString());
-       this.inserirUsinaSchemaClienteNovo(usina,usina.getId().toString(),dto,dto.getNomeResponsavel(),dto.getContatoResponsavel(),dto.getIdHospitalBaseCliente());
+       this.inserirUsinaSchemaClienteNovo(usina,dto,dto.getNomeResponsavel(),dto.getContatoResponsavel(),dto.getIdHospitalBaseCliente());
+       this.repository.inseirDados(sqlGeral);
 
-        AlocacaoRetornoDTO retorno = new AlocacaoRetornoDTO();
-        retorno.setIdAlocacao(idAloacao);
-        retorno.setIdUsinaBaseClienteNovo(idUsinaClienteNovo);
-        retorno.setIdUsinaBaseSinai(usina.getId());
+
+       AlocacaoRetornoDTO retorno = new AlocacaoRetornoDTO();
+
+       retorno.setIdAlocacao(this.consultarIdAlocacao(usina.getId().toString()));
+       retorno.setIdUsinaBaseClienteNovo(this.consultarUsinaBaseCliente(dto.getCnpjClienteNovo(),retorno.getIdAlocacao().toString()));
+       retorno.setIdUsinaBaseSinai(usina.getId());
+
 
        return retorno;
 
+    }
+
+    private Long consultarIdAlocacao(String idUsina) throws Exception{
+        ResultSet rs = this.repository.consultarDados(this.montarSQLIdAlocacao(idUsina).replace("(","").replace(")",""));
+
+        if(rs.next()){
+            Long id = rs.getLong(1);
+            rs.close();
+            return id;
+        }
+
+        rs.close();
+        return null;
+    }
+
+    private Long consultarUsinaBaseCliente(String cnpjClienteNovo,String idAlocacao) throws Exception{
+        String condicao = " AND "+TABELA_USINA_COLUNA_ID_ALOCACAO_SCHEMA_SINAI +" = "+ idAlocacao;
+        SelectSQLUtil colunas = new SelectSQLUtil();
+        colunas.adicionaValor(TABELA_USINA_COLUNA_ID);
+        String sql = SQLUtil.select("cliente_"+cnpjClienteNovo,USINA,new SelectSQLUtil(),condicao);
+        ResultSet rs = this.repository.consultarDados(sql);
+
+        if(rs.next()){
+            Long id = rs.getLong(1);
+            rs.close();
+            return id;
+        }
+
+        rs.close();
+        return null;
     }
 
     private UsinaSinai consultarUsinaBaseSinai(String idUsina) throws Exception{
@@ -72,8 +132,14 @@ public class UsinaService {
         this.sqlGeral = sqlGeral + sql;
     }
 
-    private Long inserirUsinaSchemaClienteNovo(UsinaSinai usina,String idUsinaSchemaBase, AlocacaoUsinaDTO dto,String nomeResponsavel,String contatoResponsavel,String idHospital) throws Exception{
-        String idAlocacao = "";
+    private void inserirUsinaSchemaClienteNovo(
+            UsinaSinai usina,
+            AlocacaoUsinaDTO dto,
+            String nomeResponsavel,
+            String contatoResponsavel,
+            String idHospital ) throws Exception{
+
+        String idAlocacao = montarSQLIdAlocacao(usina.getId().toString());
 
         String schemaClienteNovo = "cliente_"+dto.getCnpjClienteNovo();
         List<InsertSQLUtil> dados = new ArrayList<InsertSQLUtil>();
@@ -84,19 +150,19 @@ public class UsinaService {
         // dados.add(new InsertSQLUtil(DATA,TABELA_USINA_COLUNA_DATA_CONSTRUCAO,usina.getDataConstrucao()));
       //  dados.add(new InsertSQLUtil(DATA,TABELA_USINA_COLUNA_DATA_COMPRA,usina.getNome()));
         dados.add(new InsertSQLUtil(TEXTO,TABELA_USINA_COLUNA_STATUS,usina.getStatus()));
-        dados.add(new InsertSQLUtil(TEXTO,TABELA_USINA_COLUNA_NOME_TABELA_DYNAMON,dto.getNovoNomeTabelaLeituraDynamon() + "_"+idAlocacao));
+        dados.add(new InsertSQLUtil(NUMERO,TABELA_USINA_COLUNA_NOME_TABELA_DYNAMON,construirSubQueryAlocacao(dto.getNovoNomeTabelaLeituraDynamon(),idAlocacao)));
         dados.add(new InsertSQLUtil(TEXTO,TABELA_USINA_COLUNA_ID_CLP,usina.getIdCLP()));
-        dados.add(new InsertSQLUtil(NUMERO,TABELA_USINA_COLUNA_ID_USINA_SCHEMA_SINAI,idUsinaSchemaBase));
+        dados.add(new InsertSQLUtil(NUMERO,TABELA_USINA_COLUNA_ID_USINA_SCHEMA_SINAI,usina.getId().toString()));
         dados.add(new InsertSQLUtil(NUMERO,TABELA_USINA_COLUNA_ATIVADA,"true"));
-        dados.add(new InsertSQLUtil(TEXTO,TABELA_USINA_COLUNA_NOME_TOPICO_IOT,dto.getNovoNomeTopicoIoT() + "_"+idAlocacao));
-        dados.add(new InsertSQLUtil(TEXTO,TABELA_USINA_COLUNA_NOME_TOPICO_FIREBASE,dto.getNovoNomeTopicoFirebase() + "_"+idAlocacao));
+        dados.add(new InsertSQLUtil(NUMERO,TABELA_USINA_COLUNA_NOME_TOPICO_IOT,construirSubQueryAlocacao(dto.getNovoNomeTopicoIoT(),idAlocacao)));
+        dados.add(new InsertSQLUtil(NUMERO,TABELA_USINA_COLUNA_NOME_TOPICO_FIREBASE,construirSubQueryAlocacao(dto.getNovoNomeTopicoFirebase(),idAlocacao)));
         dados.add(new InsertSQLUtil(NUMERO,TABELA_USINA_COLUNA_ID_ALOCACAO_SCHEMA_SINAI,idAlocacao.toString()));
         dados.add(new InsertSQLUtil(TEXTO,TABELA_USINA_COLUNA_NOME_RESPONSAVEL,nomeResponsavel));
         dados.add(new InsertSQLUtil(TEXTO,TABELA_USINA_COLUNA_CONTATO_RESPONSAVEL,contatoResponsavel));
         dados.add(new InsertSQLUtil(NUMERO,TABELA_USINA_COLUNA_ID_HOSPITAL,idHospital));
         String sql = SQLUtil.insert(schemaClienteNovo,NomeTabelaUtil.USINA,dados);
 
-        return  this.repository.inserirDadosComIdRetorno(sql);
+        this.sqlGeral = sqlGeral + sql;
     }
 
 
@@ -130,11 +196,23 @@ public class UsinaService {
 
         this.sqlGeral = sqlGeral + sql;
 
-        "SELECT ID FROM SINAI.ALOCACAO_USINA_CLIENTE "
     }
-    private void consultarIdAlocacao(){
-        StringBuilder sql = n;
+    private String montarSQLIdAlocacao(String idUsina){
+        StringBuilder sql = new StringBuilder("");
+        sql.append("(SELECT ID FROM ");
+        sql.append(NOME_SCHEMA_BASE + "." + ALOCACAO_USINA_CLIENTE);
+        sql.append(" WHERE ");
+        sql.append(TABELA_ALOCACAO_USINA_CLIENTE_ID_USINA+"="+idUsina);
+        sql.append(" AND ");
+        sql.append(TABELA_ALOCACAO_USINA_CLIENTE_ID_CLIENTE+"="+idCliente.toString());
+        sql.append(" ORDER BY ID DESC LIMIT 1)");
 
+        return sql.toString();
+
+    }
+
+    private String construirSubQueryAlocacao(String preFixo,String idAlocacao){
+        return "CONCAT('"+preFixo+ "_'," + idAlocacao + ")";
     }
 
 
