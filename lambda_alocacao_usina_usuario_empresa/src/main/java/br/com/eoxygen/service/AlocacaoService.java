@@ -1,0 +1,64 @@
+package br.com.eoxygen.service;
+
+import br.com.eoxygen.dto.AlocacaoDTO;
+import br.com.eoxygen.exception.OperacaoNaoPermitidaException;
+import br.com.eoxygen.repository.GenericRepository;
+import br.com.eoxygen.util.InsertSQLUtil;
+import br.com.eoxygen.util.SQLUtil;
+import java.util.ArrayList;
+import java.util.List;
+
+import static br.com.eoxygen.enuns.TipoCampo.NUMERO;
+import static br.com.eoxygen.util.NomeTabelaUtil.*;
+import static br.com.eoxygen.util.NomeColunaUtil.*;
+
+public class AlocacaoService {
+    public final GenericRepository repository = new GenericRepository();
+    private String schemaCliente = "cliente_";
+
+    public static void main(String[] args) throws Exception{
+        AlocacaoDTO dto = new AlocacaoDTO();
+        dto.setCnpjCliente("0");
+        dto.setIdUsina(new ArrayList<>());
+        dto.setOperacao(2);
+        AlocacaoService service = new AlocacaoService();
+        service.alocar(dto);
+    }
+
+    public void alocar(AlocacaoDTO alocacaoDTO) throws Exception{
+        if(alocacaoDTO.getOperacao() == null || alocacaoDTO.getOperacao() < 1 || alocacaoDTO.getOperacao() >2 ){
+            throw new OperacaoNaoPermitidaException();
+        }
+
+        this.schemaCliente = this.schemaCliente.concat(alocacaoDTO.getCnpjCliente());
+
+        if(alocacaoDTO.getOperacao().equals(1)){
+            this.alocarUsuario(alocacaoDTO);
+        }else if(alocacaoDTO.getOperacao().equals(2)){
+            for(String idUsina: alocacaoDTO.getIdUsina()) {
+                this.desalocarUsuarioUsina(alocacaoDTO.getIdUsuario(), idUsina);
+            }
+        }
+    }
+    private void alocarUsuario(AlocacaoDTO alocacaoDTO) throws Exception{
+        String sqlGeral = "";
+        for(String idUsina: alocacaoDTO.getIdUsina()){
+            List<InsertSQLUtil> dados = new ArrayList<InsertSQLUtil>();
+            dados.add(new InsertSQLUtil(NUMERO,TABELA_USUARIO_USINA_COLUNA_ID_USINA,idUsina));
+            dados.add(new InsertSQLUtil(NUMERO,TABELA_USUARIO_USINA_COLUNA_ID_USUARIO,alocacaoDTO.getIdUsuario()));
+
+            String sql = SQLUtil.insert(schemaCliente,USUARIO_USINA,dados);
+            sqlGeral = sqlGeral.concat(sql);
+        }
+        this.repository.inserirDadosComIdRetorno(sqlGeral);
+    }
+
+    private void desalocarUsuarioUsina(String idUsuario,String idUsina) throws Exception{
+        String condicao = " WHERE "+TABELA_USUARIO_USINA_COLUNA_ID_USUARIO + "=" +idUsuario +" AND "
+                +TABELA_USUARIO_USINA_COLUNA_ID_USINA + "="+idUsina;
+
+        String sql = "DELETE FROM "+schemaCliente + "."+USUARIO_USINA + condicao;
+
+        this.repository.inseirDados(sql);
+    }
+}

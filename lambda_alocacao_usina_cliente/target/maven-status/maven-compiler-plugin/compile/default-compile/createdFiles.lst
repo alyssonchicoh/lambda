@@ -1,4 +1,9 @@
-br/com/eoxygen/dto/AlocacaoUsinaDTO.class
+br/com/eoxygen/exception/HospitalNaoEncontradoException.class
+br/com/eoxygen/exception/CampoObrigatorioExcepetion.class
+br/com/eoxygen/exception/ClienteNaoEncontradoException.class
 br/com/eoxygen/dto/AlocacaoRetornoDTO.class
-br/com/eoxygen/service/UsinaService.class
+br/com/eoxygen/validador/Validador.class
 br/com/eoxygen/lambda/FunctionLambda.class
+br/com/eoxygen/dto/AlocacaoUsinaDTO.class
+br/com/eoxygen/exception/UsinaNaoAlocadaAoClienteException.class
+br/com/eoxygen/service/UsinaService.class

@@ -1,4 +1,9 @@
-/Users/alyssonchicoh/Documents/lambda/lambda_alocacao_usina_cliente/src/main/java/br/com/eoxygen/dto/AlocacaoRetornoDTO.java
-/Users/alyssonchicoh/Documents/lambda/lambda_alocacao_usina_cliente/src/main/java/br/com/eoxygen/lambda/FunctionLambda.java
-/Users/alyssonchicoh/Documents/lambda/lambda_alocacao_usina_cliente/src/main/java/br/com/eoxygen/service/UsinaService.java
-/Users/alyssonchicoh/Documents/lambda/lambda_alocacao_usina_cliente/src/main/java/br/com/eoxygen/dto/AlocacaoUsinaDTO.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_cliente/src/main/java/br/com/eoxygen/exception/ClienteNaoEncontradoException.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_cliente/src/main/java/br/com/eoxygen/validador/Validador.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_cliente/src/main/java/br/com/eoxygen/exception/CampoObrigatorioExcepetion.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_cliente/src/main/java/br/com/eoxygen/exception/UsinaNaoAlocadaAoClienteException.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_cliente/src/main/java/br/com/eoxygen/lambda/FunctionLambda.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_cliente/src/main/java/br/com/eoxygen/dto/AlocacaoUsinaDTO.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_cliente/src/main/java/br/com/eoxygen/exception/HospitalNaoEncontradoException.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_cliente/src/main/java/br/com/eoxygen/service/UsinaService.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_cliente/src/main/java/br/com/eoxygen/dto/AlocacaoRetornoDTO.java

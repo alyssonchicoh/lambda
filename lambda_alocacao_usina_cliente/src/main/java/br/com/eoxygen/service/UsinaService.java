@@ -17,59 +17,37 @@ import static br.com.eoxygen.util.NomeColunaUtil.*;
 import static br.com.eoxygen.util.NomeTabelaUtil.*;
 
 public class UsinaService {
-
-    private String sqlGeral = "";
-
     public final GenericRepository repository = new GenericRepository();
+    private String sqlGeral = "";
     private Long idCliente;
-
-
-    public static void main(String[] args) throws Exception{
-        AlocacaoUsinaDTO dto = new AlocacaoUsinaDTO();
-       // dto.setCnpjClienteAntigo("2");
-        dto.setCnpjClienteNovo("1");
-        dto.setIdUsinaBaseSinai("75");
-        dto.setIdHospitalBaseCliente("1");
-        dto.setNovoNomeTabelaLeituraDynamon("dynamo");
-        dto.setNovoNomeTopicoIoT("iot_");
-        dto.setNovoNomeTopicoFirebase("firebase");
-        dto.setNomeResponsavel("alysson");
-        dto.setContatoResponsavel("alysson");
-
-        UsinaService service = new UsinaService();
-
-        AlocacaoRetornoDTO retorno =  service.alocar(dto);
-        System.out.println(retorno.getIdAlocacao());
-        System.out.println(retorno.getIdUsinaBaseClienteNovo());
-        System.out.println(retorno.getIdUsinaBaseSinai());
-
-    }
 
     public AlocacaoRetornoDTO alocar(AlocacaoUsinaDTO dto) throws Exception{
         Validador.camposObrigatoriosPreenchidos(dto);
+        Long idClienteNovo = Validador.exiteCliente(repository,dto.getCnpjClienteNovo());
+
+        Validador.exiteHospital(repository,dto.getCnpjClienteNovo(),dto.getIdHospitalBaseCliente());
 
         String schemaClienteAntigo = "cliente_"+dto.getCnpjClienteAntigo();
-       UsinaSinai usina = this.consultarUsinaBaseSinai(dto.getIdUsinaBaseSinai());
+        UsinaSinai usina = this.consultarUsinaBaseSinai(dto.getIdUsinaBaseSinai());
 
-       if(!dto.getCnpjClienteAntigo().equals("")){
-           this.desativarUsinaSchemaClienteAntigo(schemaClienteAntigo,usina.getId().toString());
-       }
+        if(!dto.getCnpjClienteAntigo().equals("")){
+            Long idClienteAntigo = Validador.exiteCliente(repository,dto.getCnpjClienteAntigo());
+            Validador.usinaAlocadaACliente(usina,idClienteAntigo);
+            this.desativarUsinaSchemaClienteAntigo(schemaClienteAntigo,usina.getId().toString());
+        }
 
-       this.atualizarClienteUsinaBaseSinai(dto.getIdUsinaBaseSinai(),dto.getCnpjClienteNovo());
+        this.atualizarClienteUsinaBaseSinai(dto.getIdUsinaBaseSinai(),dto.getCnpjClienteNovo());
+        this.inserirAlocacaoUsinaCliente(usina.getId().toString());
+        this.inserirUsinaSchemaClienteNovo(usina,dto,dto.getNomeResponsavel(),dto.getContatoResponsavel(),dto.getIdHospitalBaseCliente());
 
-       this.inserirAlocacaoUsinaCliente(usina.getId().toString());
-       this.inserirUsinaSchemaClienteNovo(usina,dto,dto.getNomeResponsavel(),dto.getContatoResponsavel(),dto.getIdHospitalBaseCliente());
-       this.repository.inseirDados(sqlGeral);
+        this.repository.inseirDados(sqlGeral);
 
+        AlocacaoRetornoDTO retorno = new AlocacaoRetornoDTO();
+        retorno.setIdAlocacao(this.consultarIdAlocacao(usina.getId().toString()));
+        retorno.setIdUsinaBaseClienteNovo(this.consultarUsinaBaseCliente(dto.getCnpjClienteNovo(),retorno.getIdAlocacao().toString()));
+        retorno.setIdUsinaBaseSinai(usina.getId());
 
-       AlocacaoRetornoDTO retorno = new AlocacaoRetornoDTO();
-
-       retorno.setIdAlocacao(this.consultarIdAlocacao(usina.getId().toString()));
-       retorno.setIdUsinaBaseClienteNovo(this.consultarUsinaBaseCliente(dto.getCnpjClienteNovo(),retorno.getIdAlocacao().toString()));
-       retorno.setIdUsinaBaseSinai(usina.getId());
-
-
-       return retorno;
+        return retorno;
 
     }
 
@@ -118,6 +96,7 @@ public class UsinaService {
             usina.setDataCompra(rs.getDate(TABELA_USINA_SINAI_COLUNA_DATA_COMPRA));
             usina.setStatus(rs.getString(TABELA_USINA_SINAI_COLUNA_STATUS));
             usina.setIdCLP(rs.getString(TABELA_USINA_SINAI_COLUNA_ID_CLP));
+            usina.setIdCliente(rs.getLong(TABELA_USINA_SINAI_COLUNA_ID_CLIENTE));
             rs.close();
             return usina;
         }
