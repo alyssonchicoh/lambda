@@ -5,6 +5,14 @@ public class UsinaDTO {
     private String idUsinaBaseSinai;
     private String idUsinaBaseCliente;
 
+    public UsinaDTO(){
+
+    }
+    public UsinaDTO(String idUsinaBaseSinai,String idUsinaBaseCliente){
+        this.idUsinaBaseSinai = idUsinaBaseSinai;
+        this.idUsinaBaseCliente = idUsinaBaseCliente;
+    }
+
     public String getIdUsinaBaseSinai() {
         return idUsinaBaseSinai;
     }
