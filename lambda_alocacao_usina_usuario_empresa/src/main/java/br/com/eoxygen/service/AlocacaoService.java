@@ -2,9 +2,13 @@ package br.com.eoxygen.service;
 
 import br.com.eoxygen.dto.AlocacaoDTO;
 import br.com.eoxygen.exception.OperacaoNaoPermitidaException;
+import br.com.eoxygen.exception.UsinaUsuarioJaAlocadoException;
 import br.com.eoxygen.repository.GenericRepository;
 import br.com.eoxygen.util.InsertSQLUtil;
 import br.com.eoxygen.util.SQLUtil;
+import br.com.eoxygen.util.SelectSQLUtil;
+
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,21 +20,16 @@ public class AlocacaoService {
     public final GenericRepository repository = new GenericRepository();
     private String schemaCliente = "cliente_";
 
-    public static void main(String[] args) throws Exception{
-        AlocacaoDTO dto = new AlocacaoDTO();
-        dto.setCnpjCliente("0");
-        dto.setIdUsina(new ArrayList<>());
-        dto.setOperacao(2);
-        AlocacaoService service = new AlocacaoService();
-        service.alocar(dto);
-    }
-
     public void alocar(AlocacaoDTO alocacaoDTO) throws Exception{
+        this.schemaCliente = this.schemaCliente.concat(alocacaoDTO.getCnpjCliente());
+
         if(alocacaoDTO.getOperacao() == null || alocacaoDTO.getOperacao() < 1 || alocacaoDTO.getOperacao() >2 ){
             throw new OperacaoNaoPermitidaException();
         }
 
-        this.schemaCliente = this.schemaCliente.concat(alocacaoDTO.getCnpjCliente());
+        if(jaExisteAlocacaoUsuarioUsina(alocacaoDTO.getIdUsuario(),alocacaoDTO.getIdUsina())){
+            throw new UsinaUsuarioJaAlocadoException();
+        }
 
         if(alocacaoDTO.getOperacao().equals(1)){
             this.alocarUsuario(alocacaoDTO);
@@ -50,7 +49,7 @@ public class AlocacaoService {
             String sql = SQLUtil.insert(schemaCliente,USUARIO_USINA,dados);
             sqlGeral = sqlGeral.concat(sql);
         }
-        this.repository.inserirDadosComIdRetorno(sqlGeral);
+        this.repository.inseirDados(sqlGeral);
     }
 
     private void desalocarUsuarioUsina(String idUsuario,String idUsina) throws Exception{
@@ -60,5 +59,31 @@ public class AlocacaoService {
         String sql = "DELETE FROM "+schemaCliente + "."+USUARIO_USINA + condicao;
 
         this.repository.inseirDados(sql);
+    }
+
+    public boolean jaExisteAlocacaoUsuarioUsina(String idUsuario,List<String> idUsina) throws Exception{
+        String condicao = "AND "+TABELA_USUARIO_USINA_COLUNA_ID_USUARIO + " = "+idUsuario;
+        condicao = condicao + " AND "+TABELA_USUARIO_USINA_COLUNA_ID_USINA +" IN (#IDUSINA#)";
+        String ids = "";
+        for(int i = 0; i<idUsina.size(); i++){
+            ids = ids.concat(idUsina.get(i));
+
+            if(idUsina.size()-1 != i){
+                ids = ids.concat(",");
+            }
+        }
+
+        condicao = condicao.replace("#IDUSINA#",ids);
+
+        String sql = SQLUtil.select(schemaCliente,USUARIO_USINA,new SelectSQLUtil(),condicao);
+        ResultSet rs = this.repository.consultarDados(sql);
+
+        if(rs.next()){
+            rs.close();
+            return true;
+        }
+
+        rs.close();
+        return false;
     }
 }

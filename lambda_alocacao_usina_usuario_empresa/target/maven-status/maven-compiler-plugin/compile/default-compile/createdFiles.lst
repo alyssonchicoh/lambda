@@ -1,3 +1,5 @@
 br/com/eoxygen/dto/AlocacaoDTO.class
+br/com/eoxygen/exception/OperacaoNaoPermitidaException.class
 br/com/eoxygen/service/AlocacaoService.class
+br/com/eoxygen/exception/UsinaUsuarioJaAlocadoException.class
 br/com/eoxygen/lambda/FunctionLambda.class

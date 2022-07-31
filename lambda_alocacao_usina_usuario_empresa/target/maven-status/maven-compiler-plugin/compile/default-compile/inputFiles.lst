@@ -1,3 +1,5 @@
-/Users/alyssonchicoh/Documents/lambda/lambda_alocacao_usina_usuario_empresa/src/main/java/br/com/eoxygen/service/AlocacaoService.java
-/Users/alyssonchicoh/Documents/lambda/lambda_alocacao_usina_usuario_empresa/src/main/java/br/com/eoxygen/dto/AlocacaoDTO.java
-/Users/alyssonchicoh/Documents/lambda/lambda_alocacao_usina_usuario_empresa/src/main/java/br/com/eoxygen/lambda/FunctionLambda.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_usuario_empresa/src/main/java/br/com/eoxygen/exception/UsinaUsuarioJaAlocadoException.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_usuario_empresa/src/main/java/br/com/eoxygen/service/AlocacaoService.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_usuario_empresa/src/main/java/br/com/eoxygen/dto/AlocacaoDTO.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_usuario_empresa/src/main/java/br/com/eoxygen/exception/OperacaoNaoPermitidaException.java
+/Users/alyssonchicoh/Documents/lambdas_refatoradas/lambda/lambda_alocacao_usina_usuario_empresa/src/main/java/br/com/eoxygen/lambda/FunctionLambda.java
